@@ -134,7 +134,9 @@ We recommend using the Fingerprint integration with the New Universal Login as i
 
 The Fingerprint Pro result parameters will be available inside Auth0 [Actions](https://auth0.com/docs/customize/actions/actions-overview). For example, you can [create](https://auth0.com/docs/customize/actions/write-your-first-action) an Action in your login flow that stores all device identifiers of a single user [in their metadata](https://auth0.com/docs/customize/actions/flows-and-triggers/login-flow#enrich-the-user-profile).
 
-Ensure that you replace the placeholder parameter values in the code example below for for `region` and `api_key`. You can store the Fingerprint secret API KEY within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret)
+Ensure that you replace the placeholder parameter values in the code example below for `region` and `api_key`. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret)
+
+[Auth0 secret values](https://auth0.com/docs/customize/actions/manage-dependencies)
 
 ```
 /**

@@ -18,7 +18,7 @@ exports.onExecutePostLogin = async (event, api) => {
     const { FingerprintJsServerApiClient, Region } = require('@fingerprintjs/fingerprintjs-pro-server-api');
     const client = new FingerprintJsServerApiClient({
         region: Region.Global,
-        apiKey: "YOUR_FINGERPRINT_SECRET_API_KEY"
+        apiKey: "YOUR_FINGERPRINT_SECRET_API_KEY" //event.secrets.api_key
     });
     const identificationEvent = await client.getEvent(requestId);
     console.log("event", JSON.stringify(identificationEvent, null, 2));
