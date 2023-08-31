@@ -134,6 +134,8 @@ We recommend using the Fingerprint integration with the New Universal Login as i
 
 The Fingerprint Pro result parameters will be available inside Auth0 [Actions](https://auth0.com/docs/customize/actions/actions-overview). For example, you can [create](https://auth0.com/docs/customize/actions/write-your-first-action) an Action in your login flow that stores all device identifiers of a single user [in their metadata](https://auth0.com/docs/customize/actions/flows-and-triggers/login-flow#enrich-the-user-profile).
 
+Ensure that you replace the placeholder parameter values in the code example below for for `region` and `api_key`. You can store the Fingerprint secret API KEY within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret)
+
 ```
 /**
 * Handler that will be called during the execution of a PostLogin flow.
@@ -155,7 +157,7 @@ exports.onExecutePostLogin = async (event, api) => {
     const { FingerprintJsServerApiClient, Region } = require('@fingerprintjs/fingerprintjs-pro-server-api');
     const client = new FingerprintJsServerApiClient({
         region: Region.Global,
-        apiKey: "YOUR_FINGERPRINT_SECRET_API_KEY"
+        apiKey: "YOUR_FINGERPRINT_SECRET_API_KEY" //event.secrets.api_key
     });
     const identificationEvent = await client.getEvent(requestId);
     console.log("event", JSON.stringify(identificationEvent, null, 2));
@@ -165,11 +167,7 @@ exports.onExecutePostLogin = async (event, api) => {
     if (visIdCheck !== visitorId) {
         api.access.deny('Tampering detected');
     }
-    //optional - check smart signals if module is licensed
-    //console.log("Bot Detected : " + identificationEvent.products.botd.data.bot.result);
-    //console.log("Known to IP Blocklists : " + identificationEvent.products.ipBlocklist.data.result);
-    //console.log("Virtual Machine Detected : " + identificationEvent.products.virtualMachine.data.result);
-    //console.log("Tor Network Detected : " + identificationEvent.products.tor.data.result);
+
     const metadata = event.user.app_metadata;
     //optional - force MFA for new visitorIds
     if (!metadata.visitorIds || !metadata.visitorIds.includes(visitorId)) {

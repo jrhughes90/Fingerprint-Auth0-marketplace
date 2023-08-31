@@ -28,11 +28,7 @@ exports.onExecutePostLogin = async (event, api) => {
     if (visIdCheck !== visitorId) {
         api.access.deny('Tampering detected');
     }
-    //optional - check smart signals if module is licensed
-    //console.log("Bot Detected : " + identificationEvent.products.botd.data.bot.result);
-    //console.log("Known to IP Blocklists : " + identificationEvent.products.ipBlocklist.data.result);
-    //console.log("Virtual Machine Detected : " + identificationEvent.products.virtualMachine.data.result);
-    //console.log("Tor Network Detected : " + identificationEvent.products.tor.data.result);
+
     const metadata = event.user.app_metadata;
     //optional - force MFA for new visitorIds
     if (!metadata.visitorIds || !metadata.visitorIds.includes(visitorId)) {
