@@ -1,118 +1,180 @@
-# Fingerprint-Auth0-marketplace
-
-The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience. 
+The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience.
 
 The integration is powered by Fingerprint Pro's device detection technology, which is an industry-leading solution that quickly and accurately identifies the characteristics of a browser or device. The device information, with unparalleled accuracy, is then used to create a unique and immutable device fingerprint that can be used to securely identify a user's device and detect any malicious activity.
 
-## Prerequisites
+Prerequisites
+-------------
 
-1. An Auth0 account and tenant. [Sign up for free](https://auth0.com/signup).
-2. A Fingerprint Pro account. [Sign up for free](https://dashboard.fingerprint.com/signup/)
+1.  An Auth0 account and tenant. [Sign up for free](https://auth0.com/signup).
+2.  A Fingerprint Pro account. [Sign up for free](https://dashboard.fingerprint.com/signup/).
 
-## Set up Fingerprint Pro
+1\. Add Fingerprint Pro to your application
+-------------------------------------------
 
-To configure the integration with Fingerprint:
+To identify your visitors, add the Fingerprint Pro device intelligence agent to your website or application:
 
-1. Create your Fingerprint Pro Account and Log into the dashboard
-2. Login to the Fingerprint dashboard https://dashboard.fingerprint.com/login
-3. Make sure the correct region is selected during account setup https://dev.fingerprintjs.com/docs/regions
-4. Click on “API keys” on the left pane to get your Public and Private keys. The public key will be used in the configuration of your client side application.
-5. Follow the quickstart guide here https://dev.fingerprint.com/docs/quick-start-guide Fingerprint offers multiple SDKs for mobile and web applications, choose the most suitable for your application. If you have issues, please contact https://fingerprint.com/support/
-6. After integration, redeploy and visit your application.
-7. Return to your Fingerprint Dashboard, click on "Fingerprint Pro" in the left hand menu and verify a visitorId and RequestId is being returned.
-8. In your application, find where the Auth0 Login is being called. In this example, we created a wrapper for the Auth0 Login method to pass in the Fingerprint visitorId and the requestId.
+1.  [Sign up](https://dashboard.fingerprint.com/signup) for Fingerprint Pro if you haven't already and [log in](https://dashboard.fingerprint.com/login) to your dashboard.
 
-```async function loginWithFingerprint() {
-if (data) {
-return loginWithRedirect({
-fingerprint: `${data.visitorId} ${data.requestId}`,
-});
-}
-return console.log(data);
-}
-```
+2.  Navigate to App Settings → Integrations to explore the available SDKs and find the easiest way to install Fingerprint Pro.
 
-This is languange dependent and your implementation may look different than this. Ultimately, you are passing in the visitorId as well as the requestId into Auth0's /authorize URL. Relevant snippets from a React example will be included at the bottom of this guide.
+3.  You can [import](https://dev.fingerprint.com/docs/js-agent#installing-the-agent--quick-usage-examples) the script directly in vanilla JavaScript or use a type-safe [SDK](https://dev.fingerprint.com/docs/frontend-libraries) for your favorite framework. Here is a [React SDK](https://github.com/fingerprintjs/fingerprintjs-pro-react) example:
 
-9. The visitorId and requestId can now be accessed within a post-login Action using ```event.request.query.fingerprint```. Note: you will need to split the string to use the values independently. 
+    ```
+     import {
+         FpjsProvider,
+         useVisitorData
+     } from '@fingerprintjs/fingerprintjs-pro-react';
 
-Additional Considerations:
-It's important to note that this is only recommended for use with the New Universal Login Experience as it's server-side rendered. Using this integration with Classic UL will result in the additonal parameters being visible to the end user.
+     const App = () => (
+       <FpjsProvider
+         loadOptions={{
+           apiKey: 'YOUR_PUBLIC_API_KEY',
+           endpoint: 'YOUR_CUSTOM_ENDPOINT'
+         }}>
+         <VisitorData />
+       </FpjsProvider>
+     );
 
+     const VisitorData = () => {
+       const { data } = useVisitorData();
+       return (
+         <div>
+           Visitor ID: ${data?.visitorId}, Request ID: ${data?.requestId}
+         </div>
+       );
+     };
+    ```
 
-#### Subdomain Setup:
+    The returned `visitorId` is a unique and stable identifier of your visitor.
 
-While the Fingerprint Subdomain integration is not required, we highly recommend configuring this. It increases accuracy by allowing Fingerprint to use first-party cookies and protects from identification requests being blocked by browsers or ad blockers.
-https://dev.fingerprint.com/docs/subdomain-integration
-If more than 1 subdomain is needed, setup all of the subdomains together and then add the A records for all domains in your DNS.
+4.  All the code snippets on the Integrations page already include your Public API Key, but you can also find it in App Settings → API Keys.
 
-#### React SPA Snippet examples:
+5.  Open your website or application with Fingerprint Pro installed. You should see your identification event inside the Fingerprint [dashboard](https://dashboard.fingerprint.com/) → Fingerprint Pro.
 
-##### //Index.js
+Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/docs/quick-start-guide) or contact [Fingerprint support](https://fingerprint.com/support/) if you have any questions.
 
-```
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-import { Auth0Provider } from "@auth0/auth0-react";
-import { FpjsProvider } from "@fingerprintjs/fingerprintjs-pro-react";
+> Note: For production deployments, we recommend routing requests to Fingerprint Pro APIs through your own domain. This prevents ad blockers from disrupting identification requests and improves accuracy. We offer a variety of proxy integration options, see [Protecting your JavaScript agent from ad blockers](https://dev.fingerprint.com/docs/protecting-the-javascript-agent-from-adblockers) for more details
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-<React.StrictMode>
-<FpjsProvider
-cacheLocation="memory"
-loadOptions={{
-        apiKey: process.env.REACT_APP_FPJS_PUBLIC_API_KEY,
-        endpoint: ["fp.YOURDOMAIN.com"],
-        region: "us",
-      }} >
-<Auth0Provider
-            domain={process.env.REACT_APP_DOMAIN}
-            clientId={process.env.REACT_APP_CLIENT_ID}
-            redirectUri={window.location.origin}
-          >
-<App />
-</Auth0Provider>
-,
-</FpjsProvider>
-</React.StrictMode>
+2\. Send Fingerprint Pro results to Auth0
+-----------------------------------------
+
+Modify your Auth0 integration to send the Fingerprint Pro identification results as additional authorization parameters.
+
+For most JavaScript-based Auth0 SDKs, you can pass the `requestId` and `visitorId` as custom `authorizationParams` into the `loginWithRedirect` function. Here is an example using the [Auth0 React SDK](https://auth0.com/docs/libraries/auth0-react):
 
 ```
+import { useVisitorData } from '@fingerprintjs/fingerprintjs-pro-react';
+import { useAuth0 } from '@auth0/auth0-react';
 
-##### //NavBar.js
+const Login = () => {
+  const { loginWithRedirect } = useAuth0();
+  const { data } = useVisitorData();
+
+  return (
+    <Button
+      onClick={() =>
+        loginWithRedirect({
+          authorizationParams: {
+            visitorId: data?.visitorId,
+            requestId: data?.requestId
+          }
+        })
+      }>
+      Log in
+    </Button>
+  );
+};
+```
+
+If you are using a redirect-based Auth0 SDK designed for server-rendered applications, you will need to:
+
+1.  Pass the `requestId` and `visitorId` as query parameters to the login route. An example using [Auth0 Next SDK](https://auth0.com/docs/quickstart/webapp/nextjs/01-login):
+
+    ```
+     import { useVisitorData } from '@fingerprintjs/fingerprintjs-pro-react';
+
+     const LoginLink = () => {
+       const { data } = useVisitorData();
+
+       return (
+         <AnchorLink
+           href={`/api/auth/login?visitorId=${data?.visitorId}&requestId=${data?.requestId}`}>
+           Log in
+         </AnchorLink>
+       );
+     };
+    ```
+
+2.  Customize the login route handler to pass the query parameters to Auth0 as `authorizationParams`. An example using the [Auth0 Next SDK](https://auth0.com/docs/quickstart/webapp/nextjs/01-login):
+
+    ```
+     // src/pages/api/auth/[...auth0].js
+
+     import { handleAuth, handleLogin } from '@auth0/nextjs-auth0';
+
+     export default handleAuth({
+       async login(req, res) {
+         // Pass visitorId as custom parameter to login
+         await handleLogin(req, res, {
+           authorizationParams: {
+             visitorId: req.query.visitorId,
+             requestId: req.query.requestId,
+           },
+         });
+       }
+     });
+    ```
+
+Your implementation details will vary depending on how you integrate Auth0 with your application. Reach out to Auth0 support if you have any questions about passing custom authorization parameters.
+
+We recommend using the Fingerprint integration with the New Universal Login as it's server-side rendered. Using it with the Classic Universal Login will result in the additional parameters being visible to the end user.
+
+3\. Use the Fingerprint Pro result in an Auth0 Action
+-----------------------------------------------------
+
+The Fingerprint Pro result parameters will be available inside Auth0 [Actions](https://auth0.com/docs/customize/actions/actions-overview). For example, you can [create](https://auth0.com/docs/customize/actions/write-your-first-action) an Action in your login flow that stores all device identifiers of a single user [in their metadata](https://auth0.com/docs/customize/actions/flows-and-triggers/login-flow#enrich-the-user-profile).
 
 ```
-import { useAuth0 } from "@auth0/auth0-react";
-import { useVisitorData } from "@fingerprintjs/fingerprintjs-pro-react";
+/**
+* Handler that will be called during the execution of a PostLogin flow.
+*
+* @param {Event} event - Details about the user and the context in which they are logging in.
+* @param {PostLoginAPI} api - Interface whose methods can be used to change the behavior of the login.
+*/
+exports.onExecutePostLogin = async (event, api) => {
+  // Pull visitorId, requestId from the query
+  const { visitorId, requestId } = event.request.query;
 
-const Navbar = () => {
-const navigate = useNavigate();
-const dispatch = useDispatch();
-
-const { data } = useVisitorData();
-const { user, isAuthenticated, loginWithRedirect, logout } = useAuth0();
-
-    async function loginWithFingerprint() {
-    if (data) {
-      return loginWithRedirect({
-        fingerprint: `${data.visitorId} ${data.requestId}`,
-      });
+    if (!visitorId || !requestId) {
+        return;
     }
-    return console.log(data);
+  console.log(`Fingerprint Pro values, visitorId: ${visitorId}, requestId: ${requestId}`);
 
-}
+  // You can store the visitorId or use it in your authorization logic
+  // For example, you can add visitorId to user app metadata
+  // to keep track of all of user's browsers and devices
+  const metadata = event.user.app_metadata
+  if (!metadata.visitorIds) {
+    api.user.setAppMetadata("visitorIds", [visitorId]);
+  } else if (!metadata.visitorIds.includes(visitorId)) {
+    api.user.setAppMetadata("visitorIds", [visitorId, ...metadata.visitorIds] );
+  }
 
-  <Button onClick={loginWithFingerprint}>
-   <AccountCircleOutlinedIcon />
-       SIGN IN
-   </Button>
+  // You can also use Fingerprint Pro Server API SDK to securely
+  // retrieve complete info about that specific identification event
+  const { FingerprintJsServerApiClient, Region } = require('@fingerprintjs/fingerprintjs-pro-server-api');
+  const client = new FingerprintJsServerApiClient({
+        region: Region.Global,
+        apiKey: "YOUR_FINGERPRINT_SECRET_API_KEY"
+    });
+  const identificationEvent = await client.getEvent(requestId);
+  console.log("event", JSON.stringify(identificationEvent, null, 2));
+};
 ```
 
+See [Use cases](https://fingerprint.com/use-cases/) to explore different ways of preventing fraud and streamlining user experiences with Fingerprint Pro.
 
+Troubleshooting
+---------------
 
-## Troubleshooting
-
-Fingerprint Documentation: https://dev.fingerprint.com/docs
-Language Specific Fingeprint Repos: https://github.com/orgs/fingerprintjs/repositories
-Fingerprint Support: https://fingerprint.com/support/
+To learn more about Fingerprint Pro, visit our [website](https://fingerprint.com/) or read the [documentation](https://dev.fingerprint.com/docs). If you have any questions, reach out to our [support](https://fingerprint.com/support/).

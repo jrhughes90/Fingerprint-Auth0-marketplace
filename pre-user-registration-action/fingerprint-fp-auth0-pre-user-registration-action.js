@@ -9,7 +9,7 @@ exports.onExecutePreUserRegistration = async (event, api) => {
     //in this example a value of signup_fingerprint is sent as part of the app_metadata
     const fingerprint = event.user.app_metadata?.signup_fingerprint;
     if (!fingerprint) {
-        api.access.deny('request_tampering', 'request_tampering detected');
+        return;
     }
     var array = fingerprint.split(" ");
     const visitorId = array[0]
