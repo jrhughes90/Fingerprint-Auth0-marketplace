@@ -136,7 +136,7 @@ The Fingerprint Pro result parameters will be available inside Auth0 [Actions](
 
 Ensure that you replace the placeholder parameter values in the code example below for `region` and `api_key`. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret)
 
-[Auth0 secret values](https://auth0.com/docs/customize/actions/manage-dependencies)
+You will also need to add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the Action using the [Auth0 Action Depeendencies](https://auth0.com/docs/customize/actions/manage-dependencies).
 
 ```
 /**
