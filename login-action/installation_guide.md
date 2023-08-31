@@ -15,7 +15,7 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 
 1.  [Sign up](https://dashboard.fingerprint.com/signup) for Fingerprint Pro if you haven't already and [log in](https://dashboard.fingerprint.com/login) to your dashboard.
 
-2.  Navigate to App Settings → Integrations to explore the available SDKs and find the easiest way to install Fingerprint Pro.
+2.  Navigate to **App Settings** → **Integrations** to explore the available SDKs and find the easiest way to install Fingerprint Pro.
 
 3.  You can [import](https://dev.fingerprint.com/docs/js-agent#installing-the-agent--quick-usage-examples) the script directly in vanilla JavaScript or use a type-safe [SDK](https://dev.fingerprint.com/docs/frontend-libraries) for your favorite framework. Here is a [React SDK](https://github.com/fingerprintjs/fingerprintjs-pro-react) example:
 
@@ -47,9 +47,9 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 
     The returned `visitorId` is a unique and stable identifier of your visitor.
 
-4.  All the code snippets on the Integrations page already include your Public API Key, but you can also find it in App Settings → API Keys.
+4.  All the code snippets on the Integrations page already include your Public API Key, but you can also find it in **App Settings → API Keys**.
 
-5.  Open your website or application with Fingerprint Pro installed. You should see your identification event inside the Fingerprint [dashboard](https://dashboard.fingerprint.com/) → Fingerprint Pro.
+5.  Open your website or application with Fingerprint Pro installed. You should see your identification event inside the Fingerprint [dashboard](https://dashboard.fingerprint.com/) → **Fingerprint Pro**.
 
 Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/docs/quick-start-guide) or contact [Fingerprint support](https://fingerprint.com/support/) if you have any questions.
 
