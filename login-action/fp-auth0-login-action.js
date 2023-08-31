@@ -46,6 +46,4 @@ exports.onExecutePostLogin = async (event, api) => {
     } else if (!metadata.visitorIds.includes(visitorId)) {
         api.user.setAppMetadata("visitorIds", [visitorId, ...metadata.visitorIds]);
     }
-
-
 };

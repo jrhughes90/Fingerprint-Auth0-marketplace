@@ -5,8 +5,12 @@
 * @param {PreUserRegistrationAPI} api - Interface whose methods can be used to change the behavior of the signup.
 */
 exports.onExecutePreUserRegistration = async (event, api) => {
-
-    let fingerprint = event.user.app_metadata?.signup_fingerprint;
+    //get fingerprint value passed in from sign-up request
+    //in this example a value of signup_fingerprint is sent as part of the app_metadata
+    const fingerprint = event.user.app_metadata?.signup_fingerprint;
+    if (!fingerprint) {
+        api.access.deny('request_tampering', 'request_tampering detected');
+    }
     var array = fingerprint.split(" ");
     const visitorId = array[0]
     const requestId = array[1]
@@ -35,15 +39,17 @@ exports.onExecutePreUserRegistration = async (event, api) => {
     }).catch(function (err) {
         console.log(err)
     });
+    //query existing users for same fingerprint
+    //this could be using Auth0 app_metadata (not recommended for production) as shown below 
+    //or using your own user store / API backend (recommended)
+
     //load Auth0 management client
     const ManagementClient = require('auth0').ManagementClient;
-
     const management = new ManagementClient({
         domain: event.secrets.domain,
         clientId: event.secrets.clientId,
         clientSecret: event.secrets.clientSecret,
     });
-    //query existing users for same fingerprint
     var params = {
         search_engine: 'v3',
         q: 'app_metadata.visitorIds: ' + visitorId + '',
@@ -53,6 +59,7 @@ exports.onExecutePreUserRegistration = async (event, api) => {
     try {
         const res = await management.getUsers(params)
         console.log("Count of users with same FP: " + res.length);
+        // determine number of allowed accounts per device to allow
         if (res.length > 0) {
             api.access.deny("max_device_limit", 'Further Sign-ups from this device cannot be accepted');
         } else {
