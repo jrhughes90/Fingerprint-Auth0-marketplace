@@ -218,7 +218,7 @@ exports.onExecutePreUserRegistration = async (event, api) => {
 };
 ```
 
-See [Use cases](https://fingerprint.com/use-cases/) to explore different ways of preventing fraud and streamlining user experiences with Fingerprint Pro.
+The above action code is just an example of how Fingerprint can prevent promo abuse or synthetic account creation at sign-up. See [Use cases](https://fingerprint.com/use-cases/) to explore different ways of preventing fraud and streamlining user experiences with Fingerprint.
 
 Troubleshooting
 ---------------

@@ -194,7 +194,7 @@ exports.onExecutePostLogin = async (event, api) => {
 };
 ```
 
-See [Use cases](https://fingerprint.com/use-cases/) to explore different ways of preventing fraud and streamlining user experiences with Fingerprint Pro.
+The above action code is just an example of how Fingerprint can prevent account takeovers from unknown devices. See [Use cases](https://fingerprint.com/use-cases/) to explore different ways of preventing fraud and streamlining user experiences with Fingerprint Pro.
 
 Troubleshooting
 ---------------
