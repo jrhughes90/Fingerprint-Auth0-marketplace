@@ -1,4 +1,4 @@
-#  Fingerprint - Prevent Sign-up fraud for Auth0 Users
+#  Fingerprint - Prevent sign-up fraud for Auth0 Users
 
 The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience.
 
@@ -7,7 +7,7 @@ The integration is powered by Fingerprint Pro's device detection technology, whi
 Prerequisites
 -------------
 
-> Note: __*This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are using the Auth0 hosted sign-up page (Universal Login / classic Lock)*__.
+> __*Note*__: This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are using the Auth0 hosted sign-up page (Universal Login / classic Lock).
 
 1.  An Auth0 account and tenant. [Sign up for free](https://auth0.com/signup).
 2.  A Fingerprint Pro account. [Sign up for free](https://dashboard.fingerprint.com/signup/).
@@ -61,9 +61,9 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 
 > Note: __*This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are using the Auth0 hosted sign-up page (Universal Login / classic Lock)*__.
 
-1. Modify your sign-up page to include the Fingerprint API call and then send the `visitorId` and `requestId` as additional sign-up parameters as part of the `user_appmetadata`. 
+1. Modify your sign-up page to include the Fingerprint API call and then send the `visitorId` and `requestId` as additional sign-up parameters as part of the user `app_metadata`. 
 
-    Here is a basic example in React which shows a sign-up form submit function making a request to the applications API component to create the user with the values captured on the sign-up form. In this case, the backend component proxies the request through to the Auth0 Sign-up endpoint. 
+    Below is a basic example in React which shows a sign-up form submit function making a request to the applications API component to create the user with the values captured on the sign-up form. In this case, the backend component proxies the request to the Auth0 Sign-up endpoint. 
 
  ```
  import React from "react";
@@ -116,8 +116,8 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
   ```
     "app_metadata": { "signup_fingerprint": data.fingerprint }
   ```
-
-      Your implementation details will vary depending on your user registration flow. The end result should be that when creating a new user in Auth0 via API that the fingerprint is sent within the users `app_metadata`.
+  
+  Your implementation details will vary depending on your user registration flow. The end result should be that when creating a new user in Auth0 via API that the fingerprint is sent within the users `app_metadata`.
 
 
 3.  Open your website or application with Fingerprint Pro installed. You should see your identification event inside the Fingerprint [dashboard](https://dashboard.fingerprint.com/) → **Fingerprint Pro**.
@@ -130,18 +130,16 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
 3\. Use the Fingerprint result in an Auth0 Action
 -----------------------------------------------------
 
-The Fingerprint Pro result parameters will be available inside Auth0 [Actions](https://auth0.com/docs/customize/actions/actions-overview). For example, you can [create](https://auth0.com/docs/customize/actions/write-your-first-action) an Action in your login flow that stores all device identifiers of a single user [in their metadata](https://auth0.com/docs/customize/actions/flows-and-triggers/login-flow#enrich-the-user-profile). 
-
-The example below stores an array of visitorId's in the `app_metadata` of the users profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognised. 
+The Fingerprint `visitorId` and `requestId` will be available inside the Auth0 [Action](https://auth0.com/docs/customize/actions/actions-overview). The example action script below stores an array of visitorId's in the `app_metadata` of the users profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognised. 
 
 1. Create a new [Pre User Registration Action](https://auth0.com/docs/customize/actions/flows-and-triggers/pre-user-registration-flow) in Auth0.
 
-2. Use the example code below in the Action to check for fraud on user sign-up.
-  > The example below prevents malciious actors creating multiple accounts on the same browser/device by checking to see if the assigned `visitorId` is stored against another user account. In this example, the `visitorIds` are stored in `app_metadata` of the users profile (within the provided database) - The script calls the Auth0 Management API to query the `app_metadata` for an existing `visitorId`, if the number of user accounts returned is hiugher than 0, the sign-up is rejected. ***However this not recommended for production, ideally the `visitorId` should be stored in your own user store as it's own attribute which can be queried***.   
+2. Use the example action script below in the Action to check for fraud on user sign-up.
+  > The script prevents malciious actors creating multiple accounts on the same browser/device by checking to see if the assigned `visitorId` is stored against another user account. In this example, the `visitorIds` are stored in `app_metadata` of the users profile (within the provided database) - The script calls the Auth0 Management API to query the `app_metadata` for an existing `visitorId`, if a user account is returned, the sign-up is rejected as an account already exists for this device/browser. ***However, this not recommended for production, ideally the `visitorId` should be stored in your own user store as it's own attribute which can be queried via your API***.   
   
-  The script additional checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and checks the smart signals inlcuded in the event identification response.
+  > The script additionally checks the `visitorId` sent in the sign-up request matches the `visitorId` for the associated request using Fingerprint's Event API. In the same Event Identification response, the result of the smart signals are returned which are checked for additional indicators of fraud such as bot detection or browser tampering.
 
-3. Ensure that you replace the placeholder parameter values in the code example below for `region` and `api_key`. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
+3. Ensure that you replace the placeholder parameter values for `region` and `api_key` in the action script below. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
 
 4. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the Action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies).
 
@@ -221,7 +219,7 @@ exports.onExecutePreUserRegistration = async (event, api) => {
 };
 ```
 
-The above action code is just an example of how Fingerprint can prevent promo abuse or synthetic account creation at sign-up. See [Use cases](https://fingerprint.com/use-cases/) to explore different ways of preventing fraud and streamlining user experiences with Fingerprint.
+The above action script is just an example of how Fingerprint can prevent promo abuse or synthetic account creation at sign-up. See [Use cases](https://fingerprint.com/use-cases/) to explore different ways of preventing fraud and streamlining user experiences with Fingerprint.
 
 Troubleshooting
 ---------------
