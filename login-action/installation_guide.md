@@ -1,4 +1,4 @@
-# Fingerprint Account Takeover Protection - Auth0 Marketplace
+# Auth0 Marketplace / Fingerprint -  Account Takeover Protection
 
 The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience.
 
@@ -136,11 +136,15 @@ We recommend using the Fingerprint integration with the New Universal Login as i
 
 The Fingerprint Pro result parameters will be available inside Auth0 [Actions](https://auth0.com/docs/customize/actions/actions-overview). For example, you can [create](https://auth0.com/docs/customize/actions/write-your-first-action) an Action in your login flow that stores all device identifiers of a single user [in their metadata](https://auth0.com/docs/customize/actions/flows-and-triggers/login-flow#enrich-the-user-profile). 
 
-The example below stores an array of visitorId's in the `app_metadata` of the users profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognised. 
+The example below stores an array of visitorId's in the `app_metadata` of the users profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognised.
 
-1. Ensure that you replace the placeholder parameter values in the code example below for `region` and `api_key`. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
+1. Create a new [Login Action](https://auth0.com/docs/customize/actions/flows-and-triggers/login-flow) in Auth0.
 
-2. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the Action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies).
+2. Use the example code below in the Action to check for new devices.
+
+3. Ensure that you replace the placeholder parameter values in the code example below for `region` and `api_key`. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
+
+4. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the Action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies).
 
 ```
 /**
