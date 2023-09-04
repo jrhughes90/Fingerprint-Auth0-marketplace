@@ -1,4 +1,4 @@
-# Auth0 Marketplace / Fingerprint -  Account Takeover Protection
+# Fingerprint - Account Takeover Protection for Auth0 Users
 
 The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience.
 

@@ -1,4 +1,4 @@
-#  Auth0 Marketplace / Fingerprint - Prevent Sign-up Abuse
+#  Fingerprint - Prevent Sign-up fraud for Auth0 Users
 
 The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience.
 
@@ -136,7 +136,10 @@ The example below stores an array of visitorId's in the `app_metadata` of the us
 
 1. Create a new [Pre User Registration Action](https://auth0.com/docs/customize/actions/flows-and-triggers/pre-user-registration-flow) in Auth0.
 
-2. Use the example code below in the Action to check for fraud on sign-up.
+2. Use the example code below in the Action to check for fraud on user sign-up.
+  > The example below prevents malciious actors creating multiple accounts on the same browser/device by checking to see if the assigned `visitorId` is stored against another user account. In this example, the `visitorIds` are stored in `app_metadata` of the users profile (within the provided database) - The script calls the Auth0 Management API to query the `app_metadata` for an existing `visitorId`, if the number of user accounts returned is hiugher than 0, the sign-up is rejected. ***However this not recommended for production, ideally the `visitorId` should be stored in your own user store as it's own attribute which can be queried***.   
+  
+  The script additional checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and checks the smart signals inlcuded in the event identification response.
 
 3. Ensure that you replace the placeholder parameter values in the code example below for `region` and `api_key`. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
 
