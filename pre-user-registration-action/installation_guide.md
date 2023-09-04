@@ -7,7 +7,7 @@ The integration is powered by Fingerprint Pro's device detection technology, whi
 Prerequisites
 -------------
 
-> Note: __*This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are uisng the Auth0 hosted sign-up page (Universal Login / classic Lock)*__.
+> Note: __*This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are using the Auth0 hosted sign-up page (Universal Login / classic Lock)*__.
 
 1.  An Auth0 account and tenant. [Sign up for free](https://auth0.com/signup).
 2.  A Fingerprint Pro account. [Sign up for free](https://dashboard.fingerprint.com/signup/).
@@ -22,7 +22,7 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 
 2.  Navigate to **App Settings** → **Integrations** to explore the available SDKs and find the easiest way to install Fingerprint Pro.
 
-3.  Add the SDK to your application - You can [import](https://dev.fingerprint.com/docs/js-agent#installing-the-agent--quick-usage-examples) the script directly in vanilla JavaScript or use a type-safe [SDK](https://dev.fingerprint.com/docs/frontend-libraries) for your favorite framework. Here is a [React SDK](https://github.com/fingerprintjs/fingerprintjs-pro-react) example:
+3.  Add the SDK to your application - You can [import](https://dev.fingerprint.com/docs/js-agent#installing-the-agent--quick-usage-examples) the script directly in vanilla JavaScript or use a type-safe [SDK](https://dev.fingerprint.com/docs/frontend-libraries) for your favorite framework. Here is a [React SDK](https://github.com/fingerprintjs/fingerprintjs-pro-react) example wrapping the application (or component) within FpjsProvider:
 
     ```
     import {
@@ -52,17 +52,11 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 
     > The returned `visitorId` is a unique and stable identifier of your visitor.
 
-    All the code snippets on the Integrations page already include your Public API Key, but you can also find it in **App Settings → API Keys**.
+    You can find your public API key in the Fingerprint dashbaord under **App Settings → API Keys**.
 
-4.  As this integration will Fingerprint users during sign-up, you should add the SDK, detailed in step 4, to the sign-up page. 
 
-5.  Open your website or application with Fingerprint Pro installed. You should see your identification event inside the Fingerprint [dashboard](https://dashboard.fingerprint.com/) → **Fingerprint Pro**.
 
-Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/docs/quick-start-guide) or contact [Fingerprint support](https://fingerprint.com/support/) if you have any questions.
-
-> Note: For production deployments, we recommend routing requests to Fingerprint Pro APIs through your own domain. This prevents ad blockers from disrupting identification requests and improves accuracy. We offer a variety of proxy integration options, see [Protecting your JavaScript agent from ad blockers](https://dev.fingerprint.com/docs/protecting-the-javascript-agent-from-adblockers) for more details
-
-2\. Send Fingerprint results as part of Auth0 sign-up request
+2\. Request Fingerprint on sign-up page and send results as part of Auth0 sign-up request
 -----------------------------------------
 
 > Note: __*This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are using the Auth0 hosted sign-up page (Universal Login / classic Lock)*__.
@@ -70,7 +64,6 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
 1. Modify your sign-up page to include the Fingerprint API call and then send the `visitorId` and `requestId` as additional sign-up parameters as part of the `user_appmetadata`. 
 
     Here is a basic example in React which shows a sign-up form submit function making a request to the applications API component to create the user with the values captured on the sign-up form. In this case, the backend component proxies the request through to the Auth0 Sign-up endpoint. 
-
 
  ```
  import React from "react";
@@ -118,13 +111,20 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
 };
 ```
 
-2. Then depending on your Auth0 implementation, add the following to your JSON data payload of the create user API endpoint request:
+2. Then depending on your Auth0 implementation, add the following to your JSON data payload of the create user API request (Auth0 API):
 
   ```
     "app_metadata": { "signup_fingerprint": data.fingerprint }
   ```
 
       Your implementation details will vary depending on your user registration flow. The end result should be that when creating a new user in Auth0 via API that the fingerprint is sent within the users `app_metadata`.
+
+
+3.  Open your website or application with Fingerprint Pro installed. You should see your identification event inside the Fingerprint [dashboard](https://dashboard.fingerprint.com/) → **Fingerprint Pro**.
+
+Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/docs/quick-start-guide) or contact [Fingerprint support](https://fingerprint.com/support/) if you have any questions.
+
+> Note: For production deployments, we recommend routing requests to Fingerprint Pro APIs through your own domain. This prevents ad blockers from disrupting identification requests and improves accuracy. We offer a variety of proxy integration options, see [Protecting your JavaScript agent from ad blockers](https://dev.fingerprint.com/docs/protecting-the-javascript-agent-from-adblockers) for more details.
 
 
 3\. Use the Fingerprint result in an Auth0 Action
