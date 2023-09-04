@@ -1,4 +1,4 @@
-# Fingerprint-Auth0-marketplace
+# Fingerprint - Prevent Sign-up Abuse - Auth0 Marketplace
 
 The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience. 
 
