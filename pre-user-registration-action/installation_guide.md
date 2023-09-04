@@ -59,9 +59,9 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 2\. Request Fingerprint on sign-up page and send results as part of Auth0 sign-up request
 -----------------------------------------
 
-> Note: __*This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are using the Auth0 hosted sign-up page (Universal Login / classic Lock)*__.
+> __*Note*__: This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are using the Auth0 hosted sign-up page (Universal Login / classic Lock).
 
-1. Modify your sign-up page to include the Fingerprint API call and then send the `visitorId` and `requestId` as additional sign-up parameters as part of the user `app_metadata`. 
+1. Modify your sign-up page to include the Fingerprint API call and send the `visitorId` and `requestId` as additional sign-up parameters in the users `app_metadata`. 
 
     Below is a basic example in React which shows a sign-up form submit function making a request to the applications API component to create the user with the values captured on the sign-up form. In this case, the backend component proxies the request to the Auth0 Sign-up endpoint. 
 
@@ -117,7 +117,7 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
     "app_metadata": { "signup_fingerprint": data.fingerprint }
   ```
   
-  Your implementation details will vary depending on your user registration flow. The end result should be that when creating a new user in Auth0 via API that the fingerprint is sent within the users `app_metadata`.
+  Your implementation details will vary depending on your user registration flow. The end result when creating a new user in Auth0 via API should be the fingerprint being sent within the users `app_metadata` as shown above.
 
 
 3.  Open your website or application with Fingerprint Pro installed. You should see your identification event inside the Fingerprint [dashboard](https://dashboard.fingerprint.com/) → **Fingerprint Pro**.
@@ -135,9 +135,9 @@ The Fingerprint `visitorId` and `requestId` will be available inside the Auth0 [
 1. Create a new [Pre User Registration Action](https://auth0.com/docs/customize/actions/flows-and-triggers/pre-user-registration-flow) in Auth0.
 
 2. Use the example action script below in the Action to check for fraud on user sign-up.
-  > The script prevents malciious actors creating multiple accounts on the same browser/device by checking to see if the assigned `visitorId` is stored against another user account. In this example, the `visitorIds` are stored in `app_metadata` of the users profile (within the provided database) - The script calls the Auth0 Management API to query the `app_metadata` for an existing `visitorId`, if a user account is returned, the sign-up is rejected as an account already exists for this device/browser. ***However, this not recommended for production, ideally the `visitorId` should be stored in your own user store as it's own attribute which can be queried via your API***.   
+  > The script prevents malicious actors creating multiple accounts on the same browser/device by checking to see if the assigned `visitorId` is stored against another user account. In this example, the `visitorIds` are stored in `app_metadata` of the users profile (within the provided database) - The script calls the Auth0 Management API to query the `app_metadata` for an existing `visitorId`, if a user account is returned, the sign-up is rejected as an account already exists for this device/browser. ***However, using `app_metadata` is not recommended for production, ideally the `visitorId` should be stored in your own user store as it's own attribute which can be queried via your API***.   
   
-  > The script additionally checks the `visitorId` sent in the sign-up request matches the `visitorId` for the associated request using Fingerprint's Event API. In the same Event Identification response, the result of the smart signals are returned which are checked for additional indicators of fraud such as bot detection or browser tampering.
+  > The script additionally checks the `visitorId` sent in the sign-up request matches the `visitorId` for the associated request using Fingerprint's [Event API](https://dev.fingerprint.com/reference/getevent). In the same `Event Identification` response, the result of the [Smart Signals](https://dev.fingerprint.com/docs/smart-signals-overview) are returned which are checked for additional indicators of fraud such as bot detection.
 
 3. Ensure that you replace the placeholder parameter values for `region` and `api_key` in the action script below. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
 
