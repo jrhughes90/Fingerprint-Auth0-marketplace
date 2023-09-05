@@ -7,7 +7,7 @@ The integration is powered by Fingerprint Pro's device detection technology, whi
 Prerequisites
 -------------
 
-> __*Note*__: This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are using the Auth0 hosted sign-up page (Universal Login / classic Lock).
+> __*Note*__: This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not supported when using the Auth0 hosted sign-up page (Universal Login / classic Lock).
 
 1.  An Auth0 account and tenant. [Sign up for free](https://auth0.com/signup).
 2.  A Fingerprint Pro account. [Sign up for free](https://dashboard.fingerprint.com/signup/).
@@ -59,7 +59,7 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 2\. Request Fingerprint on sign-up page and send results as part of Auth0 sign-up request
 -----------------------------------------
 
-> __*Note*__: This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not possible if you are using the Auth0 hosted sign-up page (Universal Login / classic Lock).
+> __*Note*__: This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not supported when using the Auth0 hosted sign-up page (Universal Login / classic Lock).
 
 1. Modify your sign-up page to include the Fingerprint API call and send the `visitorId` and `requestId` as additional sign-up parameters in the users `app_metadata`. 
 
