@@ -138,10 +138,10 @@ The Fingerprint Pro result parameters will be available inside Auth0 [Actions](
 
 1. Create a new [Login Action](https://auth0.com/docs/customize/actions/flows-and-triggers/login-flow) in Auth0.
 
-2. Use the example code below in the Action to check for new devices.
-  > The example below stores an array of visitorId's in the `app_metadata` of the users profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognised.
+2. Use the example Action script below to check for new devices.
+  > This example stores an array of visitorId's in the `app_metadata` of the users profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognised.
 
-3. Ensure that you replace the placeholder parameter values in the code example below for `region` and `api_key`. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
+3. Ensure that you replace the placeholder parameter values in the example below for `region` and `api_key`. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
 
 4. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the Action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies).
 
@@ -193,7 +193,7 @@ exports.onExecutePostLogin = async (event, api) => {
 };
 ```
 
-The above action code is just an example of how Fingerprint can prevent account takeovers from unknown devices. See [Use cases](https://fingerprint.com/use-cases/) to explore different ways of preventing fraud and streamlining user experiences with Fingerprint Pro.
+The above action script is an example of how Fingerprint can prevent account takeovers from unknown devices. See [Use cases](https://fingerprint.com/use-cases/) to explore different ways of preventing fraud and streamlining user experiences with Fingerprint Pro.
 
 Troubleshooting
 ---------------
