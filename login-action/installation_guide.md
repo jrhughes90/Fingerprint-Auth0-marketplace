@@ -19,9 +19,9 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 
 2.  Navigate to **App Settings** → **Integrations** to explore the available SDKs and find the easiest way to install Fingerprint Pro.
 
-3.  You can [import](https://dev.fingerprint.com/docs/js-agent#installing-the-agent--quick-usage-examples) the script directly in vanilla JavaScript or use a type-safe [SDK](https://dev.fingerprint.com/docs/frontend-libraries) for your favorite framework. Here is a [React SDK](https://github.com/fingerprintjs/fingerprintjs-pro-react) example wrapping the application (or component) within FpjsProvider:
+3.  You can [import](https://dev.fingerprint.com/docs/js-agent#installing-the-agent--quick-usage-examples) the script directly in vanilla JavaScript or use a type-safe [SDK](https://dev.fingerprint.com/docs/frontend-libraries) for your favorite framework. Here is a [React SDK](https://github.com/fingerprintjs/fingerprintjs-pro-react) example wrapping the application (or component) inside `FpjsProvider`:
 
-    ```
+    ```ts
     import {
          FpjsProvider,
          useVisitorData
@@ -51,7 +51,7 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 
 4.  All the code snippets on the Integrations page already include your Public API Key, but you can also find it in **App Settings → API Keys**.
 
-5.  Open your website or application with Fingerprint Pro installed. You should see your identification event inside the Fingerprint [dashboard](https://dashboard.fingerprint.com/) → **Fingerprint Pro**.
+5.  Open your website or application with Fingerprint Pro installed. You should see your identification event inside the Fingerprint [dashboard](https://dashboard.fingerprint.com/) → **Identification**.
 
 Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/docs/quick-start-guide) or contact [Fingerprint support](https://fingerprint.com/support/) if you have any questions.
 
@@ -64,7 +64,7 @@ Modify your Auth0 integration to send the Fingerprint Pro identification results
 
 For most JavaScript-based Auth0 SDKs, you can pass the `requestId` and `visitorId` as custom `authorizationParams` into the `loginWithRedirect` function. Here is an example using the [Auth0 React SDK](https://auth0.com/docs/libraries/auth0-react):
 
-```
+```ts
 import { useVisitorData } from '@fingerprintjs/fingerprintjs-pro-react';
 import { useAuth0 } from '@auth0/auth0-react';
 
@@ -92,7 +92,7 @@ If you are using a redirect-based Auth0 SDK designed for server-rendered applica
 
 1.  Pass the `requestId` and `visitorId` as query parameters to the login route. An example using [Auth0 Next SDK](https://auth0.com/docs/quickstart/webapp/nextjs/01-login):
 
-    ```
+    ```ts
      import { useVisitorData } from '@fingerprintjs/fingerprintjs-pro-react';
 
      const LoginLink = () => {
@@ -109,7 +109,7 @@ If you are using a redirect-based Auth0 SDK designed for server-rendered applica
 
 2.  Customize the login route handler to pass the query parameters to Auth0 as `authorizationParams`. An example using the [Auth0 Next SDK](https://auth0.com/docs/quickstart/webapp/nextjs/01-login):
 
-    ```
+    ```ts
      // src/pages/api/auth/[...auth0].js
 
      import { handleAuth, handleLogin } from '@auth0/nextjs-auth0';
@@ -145,7 +145,7 @@ The Fingerprint Pro result parameters will be available inside Auth0 [Actions](
 
 4. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the Action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies).
 
-```
+```ts
 /**
 * Handler that will be called during the execution of a PostLogin flow.
 *
@@ -170,18 +170,22 @@ exports.onExecutePostLogin = async (event, api) => {
     });
     const identificationEvent = await client.getEvent(requestId);
     console.log("event", JSON.stringify(identificationEvent, null, 2));
-    var visIdCheck = identificationEvent.products.identification.data.visitorId;
-    //check visitorId was not tampered with
-    console.log("visCheck: " + visIdCheck + " visitorId sent in authorization Param: " + visitorId)
-    if (visIdCheck !== visitorId) {
+
+
+    // Verify that the provided visitorId was not tampered with
+    var serverSideVisitorId = identificationEvent.products.identification.data.visitorId;
+    console.log("visitorId from Server API: " + serverSideVisitorId + ", visitorId sent in authorization params: " + visitorId)
+    if (serverSideVisitorId !== visitorId) {
         api.access.deny('Tampering detected');
     }
 
     const metadata = event.user.app_metadata;
-    //optional - force MFA for new visitorIds
+
+    // Optional: Force multi-factor authentication for new visitor IDs
     if (!metadata.visitorIds || !metadata.visitorIds.includes(visitorId)) {
         api.multifactor.enable('any');
     }
+
     // You can store the visitorId or use it in your authorization logic
     // For example, you can add visitorId to user app metadata 
     // to keep track of all of user's browsers and devices  
