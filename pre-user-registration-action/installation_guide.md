@@ -110,41 +110,47 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
 };
 ```
 
-2. On the server, include the Fingerprint values inside `app_metadata` when [creating a user with the Auth0 API]([url](https://auth0.com/docs/api/management/v2/users/post-users)):
+2. On the server, include the Fingerprint values inside `app_metadata` when [creating a user with the Auth0 API](https://auth0.com/docs/api/management/v2/users/post-users):
 
-  ```ts
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append("Accept", "application/json");
+  ```js
+    export default async function createUserEndpoint(req) {
+        const { requestId, visitorId } = req.body;
 
-    const raw = JSON.stringify({
-      "connection": "string",
-      "email": "string",
-      "username": "string"
-      "password": "string",
-      "app_metadata": {
-        visitorId: data.visitorId,
-        requestId: data.requestId,
-      },
-    });
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Accept", "application/json");
     
-    const requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow'
-    };
+        const raw = JSON.stringify({
+          "connection": "string",
+          "email": "string",
+          "username": "string"
+          "password": "string",
+          "app_metadata": {
+            visitorId: visitorId,
+            requestId: requestId,
+          },
+        });
+        
+        const requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          body: raw,
+          redirect: 'follow'
+        };
+        
+        fetch("https://login.auth0.com/api/v2/users", requestOptions)
+          .then(response => response.text())
+          .then(result => console.log(result))
+          .catch(error => console.log('error', error));
+    }
+
     
-    fetch("https://login.auth0.com/api/v2/users", requestOptions)
-      .then(response => response.text())
-      .then(result => console.log(result))
-      .catch(error => console.log('error', error));
   ```
   
   Your implementation details will vary depending on your user registration flow. The goal is to send the visitor ID within `app_metadata` when creating the user via Auth0 API as shown above.
 
 
-3\. Use the Fingerprint result in an Auth0 Action
+3\. Use the Fingerprint result in a Pre User Registration Auth0 Action
 -----------------------------------------------------
 
 The Fingerprint `visitorId` and `requestId` will be available inside the Auth0 [Action](https://auth0.com/docs/customize/actions/actions-overview). The example action script below stores an array of visitorId's in the `app_metadata` of the users profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognised. 
