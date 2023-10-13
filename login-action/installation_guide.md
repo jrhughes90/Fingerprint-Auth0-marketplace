@@ -7,8 +7,8 @@ The integration is powered by Fingerprint Pro's device detection technology, whi
 Prerequisites
 -------------
 
-1.  An Auth0 account and tenant. [Sign up for free](https://auth0.com/signup).
-2.  A Fingerprint Pro account. [Sign up for free](https://dashboard.fingerprint.com/signup/).
+*  An Auth0 account and tenant. [Sign up for free](https://auth0.com/signup).
+*  A Fingerprint Pro account. [Sign up for free](https://dashboard.fingerprint.com/signup/).
 
 1\. Add Fingerprint Pro to your application
 -------------------------------------------
@@ -173,7 +173,7 @@ exports.onExecutePostLogin = async (event, api) => {
 
 
     // Verify that the provided visitorId was not tampered with
-    var serverSideVisitorId = identificationEvent.products.identification.data.visitorId;
+    const serverSideVisitorId = identificationEvent.products.identification.data.visitorId;
     console.log("visitorId from Server API: " + serverSideVisitorId + ", visitorId sent in authorization params: " + visitorId)
     if (serverSideVisitorId !== visitorId) {
         api.access.deny('Tampering detected');
