@@ -173,14 +173,16 @@ The Fingerprint `visitorId` and `requestId` will be available inside the Auth0 [
 
 
 1. Create a new [Pre User Registration Action](https://auth0.com/docs/customize/actions/flows-and-triggers/pre-user-registration-flow) in Auth0.
-2. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies). You will use the [Fingerprint Server API](https://dev.fingerprint.com/reference/pro-server-api) to verify the authenticity of the provided visitor ID and check additional Smart signals for signs of fraudulent activity.
-3. Add `auth0` as a dependency in the same way. In this example `visitorIds` are stored in `app_metadata` of the user's Auth0 profile.  You will the Auth0 Management API client to find all users with the provided visitor ID. In production, we recommend storing the user-visitorId association in your database instead.
-4. Add the following [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret) to your action:
-    * `api_key` - Your Fingerprint Secret API Key
-    * `domain` - Your Auth0 domain
-    * `clientId` - Your Auth0 application Client ID
-    * `clientSecret` - Your Auth0 applicaion Client Secret
-5. Add the action source code: 
+2. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies). 
+    > You will use the [Fingerprint Server API](https://dev.fingerprint.com/reference/pro-server-api) to verify the authenticity of the provided visitor ID and check additional Smart signals for signs of fraudulent activity.
+3. Add `auth0` as a dependency in the same way.
+    > In this example, `visitorIds` are stored in `app_metadata` of the user's Auth0 profile.  You will use the Auth0 Management API client to find all users with the provided visitor ID. In production, we recommend storing the user-visitorId association in your database instead.
+5. Add the following [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret) to your action:
+    * `api_key` - your Fingerprint Secret API Key
+    * `domain` - your Auth0 domain
+    * `clientId` - your Auth0 application Client ID
+    * `clientSecret` - your Auth0 applicaion Client Secret
+6. Add the action source code below.
 
 ```js
 /**
