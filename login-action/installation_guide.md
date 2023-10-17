@@ -2,7 +2,9 @@
 
 The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience.
 
-The integration is powered by Fingerprint Pro's device detection technology, which is an industry-leading solution that quickly and accurately identifies the characteristics of a browser or device. The device information, with unparalleled accuracy, is then used to create a unique and immutable device fingerprint that can be used to securely identify a user's device and detect any malicious activity.
+The integration is powered by Fingerprint Pro's device detection technology, which is an industry-leading solution that quickly and accurately identifies the characteristics of a browser or device. The device information, with unparalleled accuracy, is then used to create a unique and immutable device fingerprint that can be used to securely identify a user's device and detect any malicious activity. 
+
+This guide demonstrates using Fingerprint to enable multi-factor authentication if the user is logging in from an unknown device.
 
 Prerequisites
 -------------
@@ -21,7 +23,7 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 
 3.  You can [import](https://dev.fingerprint.com/docs/js-agent#installing-the-agent--quick-usage-examples) the script directly in vanilla JavaScript or use a type-safe [SDK](https://dev.fingerprint.com/docs/frontend-libraries) for your favorite framework. Here is a [React SDK](https://github.com/fingerprintjs/fingerprintjs-pro-react) example wrapping the application (or component) inside `FpjsProvider`:
 
-    ```ts
+    ```js
     import {
          FpjsProvider,
          useVisitorData
@@ -64,7 +66,7 @@ Modify your Auth0 integration to send the Fingerprint Pro identification results
 
 For most JavaScript-based Auth0 SDKs, you can pass the `requestId` and `visitorId` as custom `authorizationParams` into the `loginWithRedirect` function. Here is an example using the [Auth0 React SDK](https://auth0.com/docs/libraries/auth0-react):
 
-```ts
+```js
 import { useVisitorData } from '@fingerprintjs/fingerprintjs-pro-react';
 import { useAuth0 } from '@auth0/auth0-react';
 
@@ -92,7 +94,7 @@ If you are using a redirect-based Auth0 SDK designed for server-rendered applica
 
 1.  Pass the `requestId` and `visitorId` as query parameters to the login route. An example using [Auth0 Next SDK](https://auth0.com/docs/quickstart/webapp/nextjs/01-login):
 
-    ```ts
+    ```js
      import { useVisitorData } from '@fingerprintjs/fingerprintjs-pro-react';
 
      const LoginLink = () => {
@@ -109,7 +111,7 @@ If you are using a redirect-based Auth0 SDK designed for server-rendered applica
 
 2.  Customize the login route handler to pass the query parameters to Auth0 as `authorizationParams`. An example using the [Auth0 Next SDK](https://auth0.com/docs/quickstart/webapp/nextjs/01-login):
 
-    ```ts
+    ```js
      // src/pages/api/auth/[...auth0].js
 
      import { handleAuth, handleLogin } from '@auth0/nextjs-auth0';
@@ -145,7 +147,7 @@ The Fingerprint Pro result parameters will be available inside Auth0 [Actions](
 
 4. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the Action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies).
 
-```ts
+```js
 /**
 * Handler that will be called during the execution of a PostLogin flow.
 *
@@ -172,11 +174,12 @@ exports.onExecutePostLogin = async (event, api) => {
     console.log("event", JSON.stringify(identificationEvent, null, 2));
 
 
-    // Verify that the provided visitorId was not tampered with
-    const serverSideVisitorId = identificationEvent.products.identification.data.visitorId;
-    console.log("visitorId from Server API: " + serverSideVisitorId + ", visitorId sent in authorization params: " + visitorId)
-    if (serverSideVisitorId !== visitorId) {
-        api.access.deny('Tampering detected');
+    // Verify that the provided visitor ID matches the one from Fingerprint servers
+    var serverApiVisitorId = identificationEvent.products.identification.data.visitorId;
+    console.log("Visitor ID from Fingerprint Server API: " + serverApiVisitorId);
+    console.log("Recieved visitor ID: " + visitorId);
+    if (serverApiVisitorId !== visitorId) {
+        api.access.deny("tampering_detected", 'Sign-ups from this device cannot be accepted.');
     }
 
     const metadata = event.user.app_metadata;
