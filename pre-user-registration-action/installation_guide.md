@@ -1,8 +1,10 @@
-#  Fingerprint - Prevent sign-ups from the same device
+#  Fingerprint - Prevent sign-up fraud for Auth0 Users
 
 The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience.
 
 The integration is powered by Fingerprint Pro's device detection technology, which is an industry-leading solution that quickly and accurately identifies the characteristics of a browser or device. The device information, with unparalleled accuracy, is then used to create a unique and immutable device fingerprint that can be used to securely identify a user's device and detect any malicious activity.
+
+This guide demonstrates using Fingerprint to prevent multiple sign-ups from the same device or browser.
 
 Prerequisites
 -------------
@@ -123,6 +125,8 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
       myHeaders.append("Accept", "application/json");
       myHeaders.append("Authorization", `Bearer {YOUR_AUTH0_BEARER_TOKEN}`);
     
+      const { name, email, password, visitorId, requestId } = req.body;
+    
       var requestOptions = {
         method: "POST",
         headers: myHeaders,
@@ -139,16 +143,16 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
       };
     
       try {
-        const response = (
+        const result = (
           await fetch(
             "https://YOUR_AUTH0_DOMAIN_AND_REGION.auth0.com/api/v2/users",
-            requestOptions,
+            requestOptions
           )
         ).json();
-        return resp.status(200).json(response);
+        return res.status(200).json(result);
       } catch (error) {
         console.log(error);
-        return res.status(400).json(response);
+        return res.status(400).json(error);
       }
     }
   ```
