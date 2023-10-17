@@ -74,17 +74,17 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
  const SignupComponent = () => {
   const { data } = useVisitorData();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     try {
       const response = await fetch(`api/signup`, {
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: e.currentTarget.name.value,
-          email: e.currentTarget.email.value,
-          password: e.currentTarget.password.value,
+          name: event.currentTarget.name.value,
+          email: event.currentTarget.email.value,
+          password: event.currentTarget.password.value,
           visitorId: data?.visitorId,
           requestId: data?.requestId,
         }),
@@ -116,49 +116,48 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
 2. On the server, include the Fingerprint values inside `app_metadata` when [creating a user with the Auth0 Management API](https://auth0.com/docs/api/management/v2/users/post-users):
 
   ```js
+    // pages/api/signup.js
     export default async function createUserEndpoint(req, res) {
-        
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-        myHeaders.append("Accept", "application/json");
-        myHeaders.append("Authorization", `Bearer {YOUR_AUTH0_BEARER_TOKEN}`);
-  
-        
-           var requestOptions = {
-                method: "POST",
-                headers: myHeaders,
-                body: JSON.stringify({
-                  connection: "YOUR_AUTH0_DATABASE_CONNECTION_NAME",
-                  email,
-                  password,
-                  name,
-                  app_metadata: {
-                    visitorId,
-                    requestId,
-                  },
-                }),
-              };
-        
-        try {
-            const response = (
-              await fetch(
-                "https://YOUR_AUTH0_DOMAIN_AND_REGION.auth0.com/api/v2/users",
-                requestOptions
-              )
-            ).json();
-            return resp.status(200).json(response);
-          } catch (error) {
-            console.log(error);
-            return res.status(400).json(response);
-          }
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Accept", "application/json");
+      myHeaders.append("Authorization", `Bearer {YOUR_AUTH0_BEARER_TOKEN}`);
+    
+      var requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: JSON.stringify({
+          connection: "YOUR_AUTH0_DATABASE_CONNECTION_NAME",
+          email,
+          password,
+          name,
+          app_metadata: {
+            visitorId,
+            requestId,
+          },
+        }),
+      };
+    
+      try {
+        const response = (
+          await fetch(
+            "https://YOUR_AUTH0_DOMAIN_AND_REGION.auth0.com/api/v2/users",
+            requestOptions,
+          )
+        ).json();
+        return resp.status(200).json(response);
+      } catch (error) {
+        console.log(error);
+        return res.status(400).json(response);
+      }
     }
   ```
 
-Note: To use Auth0 Management API this way you will need to:
+Note: To use Auth0 Management API this way you will need the following:
   
-* [Create a machine-to-machine application](https://auth0.com/docs/get-started/auth0-overview/create-applications)
-* [Create a database connection](https://auth0.com/docs/authenticate/database-connections)
-* [Implement a mechanism for getting the Management API Bearer token in production](https://auth0.com/docs/secure/tokens/access-tokens/get-management-api-access-tokens-for-production)
+* [Machine-to-machine application](https://auth0.com/docs/get-started/auth0-overview/create-applications)
+* [Database connection](https://auth0.com/docs/authenticate/database-connections)
+* [Mechanism for getting the Management API Bearer token in production](https://auth0.com/docs/secure/tokens/access-tokens/get-management-api-access-tokens-for-production)
 
 Your implementation details will vary depending on your user registration flow. The goal is to send the request and visitor IDs within `app_metadata` when creating the user via Auth0 API as shown above.
 
@@ -166,18 +165,18 @@ Your implementation details will vary depending on your user registration flow. 
 3\. Use the Fingerprint result in a Pre User Registration Auth0 Action
 -----------------------------------------------------
 
-The Fingerprint `visitorId` and `requestId` will be available inside the Auth0 [Action](https://auth0.com/docs/customize/actions/actions-overview). The example action script below stores an array of visitorId's in the `app_metadata` of the users profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognised. 
+The Fingerprint `visitorId` and `requestId` will be available inside the Auth0 [Action](https://auth0.com/docs/customize/actions/actions-overview). The pre-registration flow outlined below prevents malicious actors from creating multiple accounts on the same browser or device by checking how many accounts are already associated with that visitor ID.
+
 
 1. Create a new [Pre User Registration Action](https://auth0.com/docs/customize/actions/flows-and-triggers/pre-user-registration-flow) in Auth0.
-
-2. Use the example action script below in the Action to check for fraud on user sign-up.
-  > The script prevents malicious actors creating multiple accounts on the same browser/device by checking to see if the assigned `visitorId` is stored against another user account. In this example, the `visitorIds` are stored in `app_metadata` of the users profile (within the Auth0 hosted database) - The script calls the Auth0 Management API to query the `app_metadata` for an existing `visitorId`, if a user account is returned, the sign-up is rejected as an account already exists for this device/browser. ***However, using `app_metadata` is not recommended for production, ideally the `visitorId` should be stored in your own user store as it's own attribute which can be queried via your API***.   
-  
-  > The script additionally checks the `visitorId` sent in the sign-up request matches the `visitorId` for the associated request using Fingerprint's [Event API](https://dev.fingerprint.com/reference/getevent).  The result of each [Smart Signal](https://dev.fingerprint.com/docs/smart-signals-overview) is also included in the `Event Identification` response which are checked for additional indicators of fraud such as bot detection.
-
-3. Ensure that you replace the placeholder parameter values for `region` and `api_key` in the action script below. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
-
-4. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the Action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies).
+2. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies). You will use the [Fingerprint Server API](https://dev.fingerprint.com/reference/pro-server-api) to verify the authenticity of the provided visitor ID and check additional Smart signals for signs of fraudulent activity.
+3. Add `auth0` as a dependency in the same way. In this example `visitorIds` are stored in `app_metadata` of the user's Auth0 profile.  You will the Auth0 Management API client to find all users with the provided visitor ID. In production, we recommend storing the user-visitorId association in your database instead.
+4. Add the following [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret) to your action:
+    * `api_key` - Your Fingerprint Secret API Key
+    * `domain` - Your Auth0 domain
+    * `clientId` - Your Auth0 application Client ID
+    * `clientSecret` - Your Auth0 applicaion Client Secret
+5. Add the action source code: 
 
 ```js
 /**
@@ -196,11 +195,8 @@ exports.onExecutePreUserRegistration = async (event, api) => {
   }
 
   try {
-    // Using the requst ID, get the complete identification event from Fingerprint Server API
-    const {
-      FingerprintJsServerApiClient,
-      Region,
-    } = require("@fingerprintjs/fingerprintjs-pro-server-api");
+    // Using the request ID, get the complete identification event from Fingerprint Server API
+    const { FingerprintJsServerApiClient, Region } = require("@fingerprintjs/fingerprintjs-pro-server-api");
     // Use your Fingerprint application's region and Secret API Key
     const client = new FingerprintJsServerApiClient({
       region: Region.EU,
@@ -210,17 +206,11 @@ exports.onExecutePreUserRegistration = async (event, api) => {
     console.log(fingerprintEvent);
 
     // Verify that the provided visitor ID matches the one from Fingerprint servers
-    var serverApiVisitorId =
-      fingerprintEvent.products.identification.data.visitorId;
-    console.log(
-      "Visitor ID from Fingerprint Server API: " + serverApiVisitorId,
-    );
+    var serverApiVisitorId = fingerprintEvent.products.identification.data.visitorId;
+    console.log("Visitor ID from Fingerprint Server API: " + serverApiVisitorId);
     console.log("Recieved visitor ID: " + visitorId);
     if (serverApiVisitorId !== visitorId) {
-      api.access.deny(
-        "tampering_detected",
-        "Sign-ups from this device cannot be accepted.",
-      );
+      api.access.deny("tampering_detected", "Sign-ups from this device cannot be accepted.");
     }
 
     // Optional - examine Fingerprint Smart Signals for additional checks
@@ -252,19 +242,14 @@ exports.onExecutePreUserRegistration = async (event, api) => {
       per_page: 10,
       page: 0,
     };
-    const visitorsWithTheSameVisitorId = (
-      await auth0ManagementClient.users.getAll(userSearchParams)
-    ).data;
-    console.log(
-      "Number of users with same Fingerprint visitor ID: " +
-        visitorsWithTheSameVisitorId.length,
-    );
+    const visitorsWithTheSameVisitorId = (await auth0ManagementClient.users.getAll(userSearchParams)).data;
+    console.log("Number of users with same Fingerprint visitor ID: " + visitorsWithTheSameVisitorId.length);
 
-    // If there are too many users associated with this browser or device, deny the sigup request
+    // If there are too many users associated with this browser or device, deny the sign-up request
     if (visitorsWithTheSameVisitorId.length > 0) {
       api.access.deny("max_device_limit", "Too many sign-ups from this device.");
     } else {
-      // If not, create the user and initilize their visitorIds array wit the provided visitor ID
+      // If not, create the user and initilize their visitorIds array with the provided visitor ID
       api.user.setAppMetadata("visitorIds", [visitorId]);
     }
   } catch (err) {
