@@ -1,4 +1,4 @@
-#  Fingerprint - Prevent sign-up fraud for Auth0 Users
+#  Fingerprint - Prevent sign-ups from the same device
 
 The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integration is designed to provide a unique identifier for each of your user's devices. This is a powerful signal that helps reduce fraud and improve the user experience.
 
@@ -7,7 +7,7 @@ The integration is powered by Fingerprint Pro's device detection technology, whi
 Prerequisites
 -------------
 
-> __*Note*__: This integration requires the sign-up page to be hosted by the application so the Fingerprint library can be injected and the results sent as part of the sign-up request. This integration is not supported when using the Auth0-hosted sign-up page (Universal Login / classic Lock).
+> __*Note*__: This integration requires the sign-up page to be hosted by the application so you can install the Fingerprint JavaScript agent and send the identification results as part of the sign-up request. This integration is not supported when using the Auth0-hosted sign-up page (Universal Login / classic Lock).
 
 1.  An Auth0 account and tenant. [Sign up for free](https://auth0.com/signup).
 2.  A Fingerprint Pro account. [Sign up for free](https://dashboard.fingerprint.com/signup/).
@@ -24,7 +24,7 @@ To identify your visitors, add the Fingerprint Pro device intelligence agent to 
 
 3.  Add the SDK to your application - You can [import](https://dev.fingerprint.com/docs/js-agent#installing-the-agent--quick-usage-examples) the script directly in vanilla JavaScript or use a type-safe [SDK](https://dev.fingerprint.com/docs/frontend-libraries) for your favorite framework. Here is a [React SDK](https://github.com/fingerprintjs/fingerprintjs-pro-react) example wrapping the application (or component) inside `FpjsProvider`:
 
-    ```ts
+    ```js
     import {
          FpjsProvider,
          useVisitorData
@@ -67,29 +67,28 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
 
 1. Modify your sign-up page get the Fingerprint data and send the `visitorId` and `requestId` as additional parameters of your sign-up API request. See the basic React example below: 
 
- ```ts
+ ```js
  import React from "react";
  import { useVisitorData } from "@fingerprintjs/fingerprintjs-pro-react";
 
  const SignupComponent = () => {
-
   const { data } = useVisitorData();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await fetch(`API_BASE_URL/signup`, {
+      const response = await fetch(`api/signup`, {
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          "name": '',
-          "email": '',
-          "password": '',
-          "visitorId": data.visitorId,
-          "requestId": data.requestId,
+          name: e.currentTarget.name.value,
+          email: e.currentTarget.email.value,
+          password: e.currentTarget.password.value,
+          visitorId: data?.visitorId,
+          requestId: data?.requestId,
         }),
-        method: 'POST',
+        method: "POST",
       });
 
       const responseData = await response.json();
@@ -102,52 +101,66 @@ Consult the Fingerprint Pro [Quick Start Guide](https://dev.fingerprint.com/doc
   };
 
   return (
-      <form onSubmit={handleSubmit}>
-         {/* name, email, password form inputs */}
-         <button type="submit" value="Submit" name="submit-form">Submit</button>
-      </form>
+    <form onSubmit={handleSubmit}>
+      <input type="text" name="name" placeholder="Name" />
+      <input type="email" name="email" placeholder="Email" />
+      <input type="password" name="password" placeholder="Password" />
+      <button type="submit" value="Submit" name="submit-form">
+        Sign up
+      </button>
+    </form>
   );
 };
 ```
 
-2. On the server, include the Fingerprint values inside `app_metadata` when [creating a user with the Auth0 API](https://auth0.com/docs/api/management/v2/users/post-users):
+2. On the server, include the Fingerprint values inside `app_metadata` when [creating a user with the Auth0 Management API](https://auth0.com/docs/api/management/v2/users/post-users):
 
   ```js
-    export default async function createUserEndpoint(req) {
-        const { requestId, visitorId } = req.body;
-
-        var myHeaders = new Headers();
+    export default async function createUserEndpoint(req, res) {
+        
+        const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
         myHeaders.append("Accept", "application/json");
-    
-        const raw = JSON.stringify({
-          "connection": "string",
-          "email": "string",
-          "username": "string"
-          "password": "string",
-          "app_metadata": {
-            visitorId: visitorId,
-            requestId: requestId,
-          },
-        });
-        
-        const requestOptions = {
-          method: 'POST',
-          headers: myHeaders,
-          body: raw,
-          redirect: 'follow'
-        };
-        
-        fetch("https://login.auth0.com/api/v2/users", requestOptions)
-          .then(response => response.text())
-          .then(result => console.log(result))
-          .catch(error => console.log('error', error));
-    }
-
-    
-  ```
+        myHeaders.append("Authorization", `Bearer {YOUR_AUTH0_BEARER_TOKEN}`);
   
-  Your implementation details will vary depending on your user registration flow. The goal is to send the visitor ID within `app_metadata` when creating the user via Auth0 API as shown above.
+        
+           var requestOptions = {
+                method: "POST",
+                headers: myHeaders,
+                body: JSON.stringify({
+                  connection: "YOUR_AUTH0_DATABASE_CONNECTION_NAME",
+                  email,
+                  password,
+                  name,
+                  app_metadata: {
+                    visitorId,
+                    requestId,
+                  },
+                }),
+              };
+        
+        try {
+            const response = (
+              await fetch(
+                "https://YOUR_AUTH0_DOMAIN_AND_REGION.auth0.com/api/v2/users",
+                requestOptions
+              )
+            ).json();
+            return resp.status(200).json(response);
+          } catch (error) {
+            console.log(error);
+            return res.status(400).json(response);
+          }
+    }
+  ```
+
+Note: To use Auth0 Management API this way you will need to:
+  
+* [Create a machine-to-machine application](https://auth0.com/docs/get-started/auth0-overview/create-applications)
+* [Create a database connection](https://auth0.com/docs/authenticate/database-connections)
+* [Implement a mechanism for getting the Management API Bearer token in production](https://auth0.com/docs/secure/tokens/access-tokens/get-management-api-access-tokens-for-production)
+
+Your implementation details will vary depending on your user registration flow. The goal is to send the request and visitor IDs within `app_metadata` when creating the user via Auth0 API as shown above.
 
 
 3\. Use the Fingerprint result in a Pre User Registration Auth0 Action
@@ -166,79 +179,98 @@ The Fingerprint `visitorId` and `requestId` will be available inside the Auth0 [
 
 4. Add the `@fingerprintjs/fingerprintjs-pro-server-api` library as a dependency of the Action using the [Auth0 Action Dependencies](https://auth0.com/docs/customize/actions/manage-dependencies).
 
-```ts
+```js
 /**
-* Handler that will be called during the execution of a PreUserRegistration flow.
-*
-* @param {Event} event - Details about the context and user that is attempting to register.
-* @param {PreUserRegistrationAPI} api - Interface whose methods can be used to change the behavior of the signup.
-*/
+ * Handler that will be called during the execution of a PreUserRegistration flow.
+ *
+ * @param {Event} event - Details about the context and user that is attempting to register.
+ * @param {PreUserRegistrationAPI} api - Interface whose methods can be used to change the behavior of the sign-up.
+ */
 exports.onExecutePreUserRegistration = async (event, api) => {
-    //get fingerprint from sign-up request
-    //in this example a value of signup_fingerprint is sent as part of the app_metadata
-    const fingerprint = event.user.app_metadata?.signup_fingerprint;
-    if (!fingerprint) {
-        return;
+  // Get Fingerprint data from app_metadata
+  const visitorId = event.user.app_metadata?.visitorId;
+  const requestId = event.user.app_metadata?.requestId;
+  if (!requestId || !visitorId) {
+    console.log("No fingerprint data provided.");
+    return;
+  }
+
+  try {
+    // Using the requst ID, get the complete identification event from Fingerprint Server API
+    const {
+      FingerprintJsServerApiClient,
+      Region,
+    } = require("@fingerprintjs/fingerprintjs-pro-server-api");
+    // Use your Fingerprint application's region and Secret API Key
+    const client = new FingerprintJsServerApiClient({
+      region: Region.EU,
+      apiKey: event.secrets.api_key,
+    });
+    const fingerprintEvent = await client.getEvent(requestId);
+    console.log(fingerprintEvent);
+
+    // Verify that the provided visitor ID matches the one from Fingerprint servers
+    var serverApiVisitorId =
+      fingerprintEvent.products.identification.data.visitorId;
+    console.log(
+      "Visitor ID from Fingerprint Server API: " + serverApiVisitorId,
+    );
+    console.log("Recieved visitor ID: " + visitorId);
+    if (serverApiVisitorId !== visitorId) {
+      api.access.deny(
+        "tampering_detected",
+        "Sign-ups from this device cannot be accepted.",
+      );
     }
-    var array = fingerprint.split(" ");
-    const visitorId = array[0]
-    const requestId = array[1]
-    console.log("VisitorId is:" + visitorId);
-    console.log("RequestId is:" + requestId);
 
-    //spin up fingerpint client 
-    const { FingerprintJsServerApiClient, Region } = require('@fingerprintjs/fingerprintjs-pro-server-api');
-    // Init client with the given region and the secret api_key
-    const client = new FingerprintJsServerApiClient({ region: Region.EU, apiKey: event.secrets.api_key });
-    client.getEvent(requestId).then((event) => {
-        var visIdCheck = event.products.identification.data.visitorId;
-        console.log("Visitor Id tampering check: " + visIdCheck + " Visitor Id sent in request: " + visitorId)
-        if (visIdCheck !== visitorId) {
-            api.access.deny("tampering_detected", 'Sign-ups from this device cannot be accepted');
-        }
-        //optional - check smart signals here
-        console.log("Bot Detected : " + event.products.botd.data.bot.result);
-        if (event.products.botd.data.bot.result === "bad") {
-            api.access.deny('bot_detected', 'Bot detected');
-        }
-        // console.log("Known to IP Blocklists : " + event.products.ipBlocklist.data.result);
-        // console.log("Virtual Machine Detected : " + event.products.virtualMachine.data.result);
-        // console.log("Tor Network Detected : " + event.products.tor.data.result);
+    // Optional - examine Fingerprint Smart Signals for additional checks
+    if (fingerprintEvent.products.botd.data.bot.result === "bad") {
+      api.access.deny("bot_detected", "Bot detected");
+    }
+    // console.log("Known to IP Blocklists : " + event.products.ipBlocklist.data.result);
+    // console.log("Virtual Machine Detected : " + event.products.virtualMachine.data.result);
+    // console.log("Tor Network Detected : " + event.products.tor.data.result);
+  } catch (err) {
+    // In case of error, fail silently - don't block sign-up
+    console.log("Fingerprint-related error: ", err);
+  }
 
-    }).catch(function (err) {
-        console.log(err)
+  try {
+    // Search for other users with the same visitor ID using the Auth0 Management API
+    // This example uses app_metadata to associate users with visitor IDs,
+    // but we reccomend using your own user storage in production
+    const ManagementClient = require("auth0").ManagementClient;
+    const auth0ManagementClient = new ManagementClient({
+      domain: event.secrets.domain,
+      clientId: event.secrets.clientId,
+      clientSecret: event.secrets.clientSecret,
     });
-    //query existing users for same fingerprint
-    //this could be using Auth0 app_metadata (not recommended for production) as shown below 
-    //or using your own user store / API backend (recommended)
 
-    //load Auth0 management client
-    const ManagementClient = require('auth0').ManagementClient;
-    const management = new ManagementClient({
-        domain: event.secrets.domain,
-        clientId: event.secrets.clientId,
-        clientSecret: event.secrets.clientSecret,
-    });
-    var params = {
-        search_engine: 'v3',
-        q: 'app_metadata.visitorIds: ' + visitorId + '',
-        per_page: 10,
-        page: 0
+    const userSearchParams = {
+      search_engine: "v3",
+      q: "app_metadata.visitorIds: " + visitorId + "",
+      per_page: 10,
+      page: 0,
     };
-    try {
-        const res = await management.getUsers(params)
-        console.log("Count of users with same FP: " + res.length);
-        // determine number of allowed accounts per device to allow
-        if (res.length > 0) {
-            api.access.deny("max_device_limit", 'Further Sign-ups from this device cannot be accepted');
-        } else {
-            api.user.setAppMetadata("visitorIds", [visitorId]);
-        }
-    } catch (e) {
-        console.log(e)
-        // Handle error - fail silently - don't block signup
-    }
+    const visitorsWithTheSameVisitorId = (
+      await auth0ManagementClient.users.getAll(userSearchParams)
+    ).data;
+    console.log(
+      "Number of users with same Fingerprint visitor ID: " +
+        visitorsWithTheSameVisitorId.length,
+    );
 
+    // If there are too many users associated with this browser or device, deny the sigup request
+    if (visitorsWithTheSameVisitorId.length > 0) {
+      api.access.deny("max_device_limit", "Too many sign-ups from this device.");
+    } else {
+      // If not, create the user and initilize their visitorIds array wit the provided visitor ID
+      api.user.setAppMetadata("visitorIds", [visitorId]);
+    }
+  } catch (err) {
+    // In case of error, fail silently - don't block sign-up
+    console.log("Auth0-related error: ", err);
+  }
 };
 ```
 
