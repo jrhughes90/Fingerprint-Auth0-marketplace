@@ -181,7 +181,7 @@ The Fingerprint `visitorId` and `requestId` will be available inside the Auth0 [
     * `api_key` - your Fingerprint Secret API Key
     * `domain` - your Auth0 domain
     * `clientId` - your Auth0 application Client ID
-    * `clientSecret` - your Auth0 applicaion Client Secret
+    * `clientSecret` - your Auth0 application Client Secret
 6. Add the action source code below.
 
 ```js
@@ -201,7 +201,7 @@ exports.onExecutePreUserRegistration = async (event, api) => {
   }
 
   try {
-    // Using the request ID, get the complete identification event from Fingerprint Server API
+    // Using the request ID, get the complete identification event from the Fingerprint Server API
     const { FingerprintJsServerApiClient, Region } = require("@fingerprintjs/fingerprintjs-pro-server-api");
     // Use your Fingerprint application's region and Secret API Key
     const client = new FingerprintJsServerApiClient({
@@ -214,7 +214,7 @@ exports.onExecutePreUserRegistration = async (event, api) => {
     // Verify that the provided visitor ID matches the one from Fingerprint servers
     var serverApiVisitorId = fingerprintEvent.products.identification.data.visitorId;
     console.log("Visitor ID from Fingerprint Server API: " + serverApiVisitorId);
-    console.log("Recieved visitor ID: " + visitorId);
+    console.log("Received visitor ID: " + visitorId);
     if (serverApiVisitorId !== visitorId) {
       api.access.deny("tampering_detected", "Sign-ups from this device cannot be accepted.");
     }
@@ -234,7 +234,7 @@ exports.onExecutePreUserRegistration = async (event, api) => {
   try {
     // Search for other users with the same visitor ID using the Auth0 Management API
     // This example uses app_metadata to associate users with visitor IDs,
-    // but we reccomend using your own user storage in production
+    // but we recommend using your own user storage in production
     const ManagementClient = require("auth0").ManagementClient;
     const auth0ManagementClient = new ManagementClient({
       domain: event.secrets.domain,
@@ -255,7 +255,7 @@ exports.onExecutePreUserRegistration = async (event, api) => {
     if (visitorsWithTheSameVisitorId.length > 0) {
       api.access.deny("max_device_limit", "Too many sign-ups from this device.");
     } else {
-      // If not, create the user and initilize their visitorIds array with the provided visitor ID
+      // If not, create the user and initialize their visitorIds array with the provided visitor ID
       api.user.setAppMetadata("visitorIds", [visitorId]);
     }
   } catch (err) {
