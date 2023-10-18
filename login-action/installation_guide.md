@@ -141,7 +141,7 @@ The Fingerprint Pro result parameters will be available inside Auth0 [Actions](
 1. Create a new [Login Action](https://auth0.com/docs/customize/actions/flows-and-triggers/login-flow) in Auth0.
 
 2. Use the example Action script below to check for new devices.
-  > This example stores an array of visitorId's in the `app_metadata` of the users profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognised.
+  > This example stores an array of visitorId's in the `app_metadata` of the user profile, checks the `visitorId` sent in the authorization params matches the `visitorId` for the associated request using Fingerprint's Event API and requests MFA as part of the authentication if the `VisitorId` (device/browser) is not recognized.
 
 3. Ensure that you replace the placeholder parameter values in the example below for `region` and `api_key`. You can store the Fingerprint `api_key` within the [Auth0 secret values](https://auth0.com/docs/customize/actions/write-your-first-action#add-a-secret). 
 

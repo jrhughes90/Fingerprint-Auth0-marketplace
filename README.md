@@ -4,16 +4,20 @@ The Fingerprint and Okta Customer Identity Cloud (CIC) powered by Auth0 integrat
 
 The integration is powered by Fingerprint Pro's device detection technology, which is an industry-leading solution that quickly and accurately identifies the characteristics of a browser or device. The device information, with unparalleled accuracy, is then used to create a unique and immutable device fingerprint that can be used to securely identify a user's device and detect any malicious activity.
 
-## Implementation
+## Prevent Account Takeover
 
-Fingerprint supports 2 integrations with Okta Customer Identity Cloud (CIC) powered by Auth0. One for Account Takeover at Login and the other for User Sign-up / Registration fraud. Please see each folder in this repostory for more details on each integration:
+Use Fingerprint to enable multi-factor authentication if the user is logging in from an unknown device.
 
-[Account Takeover Protection - Login Action](https://github.com/jrhughes90/Fingerprint-Auth0-marketplace/tree/main/login-action)
+* See the Account Takeover Protection [Login Action Guide](./login-action/installation_guide.md)
 
-[User Sign-up / Registration Fraud Prevention - Pre User Registration Action](https://github.com/jrhughes90/Fingerprint-Auth0-marketplace/tree/main/pre-user-registration-action)
+## Prevent Sign-up Fraud
+
+Use Fingerprint to prevent multiple sign-ups from the same device or browser.
+
+* See the Sign-up Fraud Protection [Pre User Registration Action Guide](./pre-user-registration-action/installation_guide.md)
 
 ## Troubleshooting
 
-Fingerprint Documentation: https://dev.fingerprint.com/docs
-Language Specific Fingeprint Repos: https://github.com/orgs/fingerprintjs/repositories
-Fingerprint Support: https://fingerprint.com/support/
+* See [Fingerprint Documentation](https://dev.fingerprint.com/docs)
+* See [Fingerprint SDKs and Libraries](https://fingerprint.com/sdk-libraries/)
+* Contact [Fingerprint Support](https://fingerprint.com/support/)
