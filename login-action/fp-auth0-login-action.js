@@ -27,7 +27,7 @@ exports.onExecutePostLogin = async (event, api) => {
     // Verify that the provided visitor ID matches the one from Fingerprint servers
     var serverApiVisitorId = identificationEvent.products.identification.data.visitorId;
     console.log("Visitor ID from Fingerprint Server API: " + serverApiVisitorId);
-    console.log("Recieved visitor ID: " + visitorId);
+    console.log("Received visitor ID: " + visitorId);
     if (serverApiVisitorId !== visitorId) {
         api.access.deny("tampering_detected", 'Sign-ups from this device cannot be accepted.');
     }
@@ -41,7 +41,7 @@ exports.onExecutePostLogin = async (event, api) => {
 
     // You can store the visitorId or use it in your authorization logic
     // For example, you can add visitorId to user app metadata 
-    // to keep track of all of user's browsers and devices  
+    // to keep track of all of the user's browsers and devices  
     if (!metadata.visitorIds) {
         api.user.setAppMetadata("visitorIds", [visitorId]);
     } else if (!metadata.visitorIds.includes(visitorId)) {
