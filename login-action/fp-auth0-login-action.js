@@ -22,18 +22,23 @@ exports.onExecutePostLogin = async (event, api) => {
     });
     const identificationEvent = await client.getEvent(requestId);
     console.log("event", JSON.stringify(identificationEvent, null, 2));
-    var visIdCheck = identificationEvent.products.identification.data.visitorId;
-    //check visitorId was not tampered with
-    console.log("visCheck: " + visIdCheck + " visitorId sent in authorization Param: " + visitorId)
-    if (visIdCheck !== visitorId) {
-        api.access.deny('Tampering detected');
+
+
+    // Verify that the provided visitor ID matches the one from Fingerprint servers
+    var serverApiVisitorId = identificationEvent.products.identification.data.visitorId;
+    console.log("Visitor ID from Fingerprint Server API: " + serverApiVisitorId);
+    console.log("Recieved visitor ID: " + visitorId);
+    if (serverApiVisitorId !== visitorId) {
+        api.access.deny("tampering_detected", 'Sign-ups from this device cannot be accepted.');
     }
 
     const metadata = event.user.app_metadata;
-    //optional - force MFA for new visitorIds
+
+    // Optional: Force multi-factor authentication for new visitor IDs
     if (!metadata.visitorIds || !metadata.visitorIds.includes(visitorId)) {
         api.multifactor.enable('any');
     }
+
     // You can store the visitorId or use it in your authorization logic
     // For example, you can add visitorId to user app metadata 
     // to keep track of all of user's browsers and devices  
