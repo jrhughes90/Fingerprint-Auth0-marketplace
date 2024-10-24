@@ -1,17 +1,48 @@
 {
-    "secrets": [],
+    "secrets": [
+        {
+            "name": "api_key",
+            "label": "Fingerprint Server API Secret Key",
+            "description": "Secret key to make server-to-server requests to the Fingerprint Server API"
+        },
+        {
+            "name": "AUTH0_CLIENT_ID",
+            "label": "Auth0 Management API Client ID",
+            "description": "Auth0 Management API Client ID"
+        },
+        {
+            "name": "AUTH0_CLIENT_SECRET",
+            "label": "Auth0 Management API Client Secret",
+            "description": "Auth0 Management API Client Secret"
+        }
+    ],
     "configuration": [
         {
-            "name": "Fingerprint Sign-up Abuse Protection",
-            "label": "Device Fingerprinting",
-            "description": "Limits sign-ups to a single device or browser",
-            "default_value": "0"
+            "name": "region",
+            "label": "Fingerprint Subscription Region",
+            "description": "The Region of your Fingerprint Subscription",
+            "default_value": "Global",
+            "values": [
+                "Global",
+                "EU",
+                "AP"
+            ]
+        },
+        {
+            "name": "AUTH0_DOMAIN",
+            "label": "Auth0 Domain Name",
+            "description": "Your Auth0 domain name, inlcuding region if applicable. For example domain.eu.auth0.com ",
+            "default_value": "{YOUR_ACCOUNT}.auth0.com"
         }
     ],
     "dependencies": [
         {
             "name": "@fingerprintjs/fingerprintjs-pro-server-api",
             "version": "1.3.0"
+        },
+        {
+            "name": "auth0",
+            "version": "3.4.0"
         }
     ]
 }

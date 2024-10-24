@@ -18,7 +18,7 @@ exports.onExecutePreUserRegistration = async (event, api) => {
     const { FingerprintJsServerApiClient, Region } = require("@fingerprintjs/fingerprintjs-pro-server-api");
     // Use your Fingerprint application's region and Secret API Key
     const client = new FingerprintJsServerApiClient({
-      region: Region.EU,
+      region: event.configuration.region,
       apiKey: event.secrets.api_key,
     });
     const fingerprintEvent = await client.getEvent(requestId);
@@ -50,9 +50,9 @@ exports.onExecutePreUserRegistration = async (event, api) => {
     // but we recommend using your own user storage in production
     const ManagementClient = require("auth0").ManagementClient;
     const auth0ManagementClient = new ManagementClient({
-      domain: event.secrets.domain,
-      clientId: event.secrets.clientId,
-      clientSecret: event.secrets.clientSecret,
+      domain: event.configuration.AUTH0_DOMAIN,
+      clientId: event.secrets.AUTH0_CLIENT_ID,
+      clientSecret: event.secrets.AUTH0_CLIENT_SECRET,
     });
 
     const userSearchParams = {
