@@ -1,5 +1,11 @@
 {
-    "secrets": [],
+    "secrets": [
+        {
+            "name": "api_key",
+            "label": "Fingerprint Server API Secret Key",
+            "description": "Secret key to make server-to-server requests to the Fingerprint Server API"
+        }
+    ],
     "configuration": [
         {
             "name": "Fingerprint Account Takeover Protection",
